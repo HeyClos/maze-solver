@@ -15,24 +15,18 @@ export function bfs(grid, startNode, finishNode) {
     while (unvisitedNeighbors.length > 0) {
         // Grab the first node on unvisitedNeighbors, and its row and col
         const currNode = unvisitedNeighbors.shift();
-        console.log(currNode.row + "," + currNode.col);
         // If it's wall - sorry, we interrupted
         if (currNode.isWall === true) continue;
         // But if it's not a wall, then we push it to visited nodes
         
-        
-        nodesVisitedInOrder.push([currNode.row, currNode.col]);        
-        
+        nodesVisitedInOrder.push(currNode);
+
         // Now, if currNode is the finishNode, we are done
-        if (currNode === finishNode) {
-            return nodesVisitedInOrder;
-        }
-        
+        if (currNode === finishNode) return nodesVisitedInOrder;
         // Otherwise we need to push its unvisited neighbors to unvisitedNeighbors
         const neighbors = getUnvisitedNeighbors(currNode, grid);
         for (const neighbor of neighbors) {
-            neighbor.previousNodeX = currNode.row;
-            neighbor.previousNodeY = currNode.col;
+            neighbor.previousNode = currNode;
             neighbor.visited = true;
             unvisitedNeighbors.push(neighbor);
         }
@@ -49,18 +43,17 @@ function getUnvisitedNeighbors(node, grid) {
     return neighbors.filter(neighbor => !neighbor.visited);
 }
 
-function getShortestNodePath(grid, finishNode) {
+function getShortestNodePath(finishNode) {
     const shortestPath = [];
     let currentNode = finishNode;
     while (currentNode !== null) {
         shortestPath.unshift(currentNode);
-        if (currentNode.previousNodeX === null) break;
-        currentNode = grid[currentNode.previousNodeX][currentNode.previousNodeY];
+        currentNode = currentNode.previousNode;
     }
     return shortestPath;
 }
 
-function animateBfs(grid, orderedVisitedNodes, orderedNodesOnShortestPath) {
+function animateBfs(orderedVisitedNodes, orderedNodesOnShortestPath) {
     for (let i = 0; i < orderedVisitedNodes.length; i++) {
         if (i === orderedVisitedNodes.length - 1) {
             setTimeout(() => {
@@ -68,8 +61,7 @@ function animateBfs(grid, orderedVisitedNodes, orderedNodesOnShortestPath) {
             }, 10 * i);
         }
         setTimeout(() => {
-            var [x, y] = orderedVisitedNodes[i];
-            const node = grid[x][y];
+            const node = orderedVisitedNodes[i];
             document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
         }, 10 * i);
     }
@@ -87,10 +79,7 @@ function animateShortestPath(orderedNodesOnShortestPath) {
 export function visualizeBfs(grid, startRow, startCol, finishRow, finishCol) {
     const startNode = grid[startRow][startCol];
     const finishNode = grid[finishRow][finishCol];
-    console.log("start");
     const orderedVisitedNodes = bfs(grid, startNode, finishNode);
-    console.log("length:" + orderedVisitedNodes.length);
-    const orderedNodesOnShortestPath = getShortestNodePath(grid, finishNode);
-    console.log("length:" + orderedNodesOnShortestPath.length);
-    animateBfs(grid, orderedVisitedNodes, orderedNodesOnShortestPath);
+    const orderedNodesOnShortestPath = getShortestNodePath(finishNode);
+    animateBfs(orderedVisitedNodes, orderedNodesOnShortestPath);
 }
