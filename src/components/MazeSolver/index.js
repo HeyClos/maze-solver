@@ -160,7 +160,8 @@ function createNode(row, col) {
         isWall: false,
         visited: false,
         distance: Infinity,
-        previousNode: null
+        previousNodeX: null,
+        previousNodeY: null
     }
 }
 
